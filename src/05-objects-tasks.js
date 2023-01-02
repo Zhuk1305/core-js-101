@@ -1,3 +1,5 @@
+/* eslint-disable comma-dangle */
+/* eslint-disable no-undef */
 /* ************************************************************************************************
  *                                                                                                *
  * Please read the following tutorial before implementing tasks:                                   *
@@ -5,7 +7,6 @@
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object        *
  *                                                                                                *
  ************************************************************************************************ */
-
 
 /**
  * Returns the rectangle object with width and height parameters and getArea() method
@@ -20,10 +21,13 @@
  *    console.log(r.height);      // => 20
  *    console.log(r.getArea());   // => 200
  */
-function Rectangle(/* width, height */) {
-  throw new Error('Not implemented');
+function Rectangle(width, height) {
+  this.width = width;
+  this.height = height;
+  this.getArea = function () {
+    return this.height * this.width;
+  };
 }
-
 
 /**
  * Returns the JSON representation of specified object
@@ -35,10 +39,9 @@ function Rectangle(/* width, height */) {
  *    [1,2,3]   =>  '[1,2,3]'
  *    { width: 10, height : 20 } => '{"height":10,"width":20}'
  */
-function getJSON(/* obj */) {
-  throw new Error('Not implemented');
+function getJSON(obj) {
+  return JSON.stringify(obj);
 }
-
 
 /**
  * Returns the object of specified type from JSON representation
@@ -51,10 +54,12 @@ function getJSON(/* obj */) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
+function fromJSON(proto, json) {
+  return Object.create(
+    proto,
+    Object.getOwnPropertyDescriptors(JSON.parse(json))
+  );
 }
-
 
 /**
  * Css selectors builder
@@ -111,35 +116,62 @@ function fromJSON(/* proto, json */) {
  */
 
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  res: '',
+  order: 0,
+
+  checkOrderNum(num) {
+    if (num === this.order && (num === 1 || num === 2 || num === 6)) {
+      throw new Error(
+        'Element, id and pseudo-element should not occur more then one time inside the selector'
+      );
+    }
+    if (this.order > num) {
+      throw new Error(
+        'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element'
+      );
+    }
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  element(value) {
+    this.checkOrderNum(1);
+    return { ...this, res: value, order: 1 };
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    this.checkOrderNum(2);
+    return { ...this, res: `${this.res}#${value}`, order: 2 };
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    this.checkOrderNum(3);
+    return { ...this, res: `${this.res}.${value}`, order: 3 };
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    this.checkOrderNum(4);
+    return { ...this, res: `${this.res}[${value}]`, order: 4 };
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    this.checkOrderNum(5);
+    return { ...this, res: `${this.res}:${value}`, order: 5 };
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    this.checkOrderNum(6);
+    return { ...this, res: `${this.res}::${value}`, order: 6 };
+  },
+
+  combine(selector1, combinator, selector2) {
+    return {
+      ...this,
+      res: `${selector1.res} ${combinator} ${selector2.res}`,
+    };
+  },
+  stringify() {
+    return this.res;
   },
 };
-
 
 module.exports = {
   Rectangle,
