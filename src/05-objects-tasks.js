@@ -1,5 +1,6 @@
 /* eslint-disable comma-dangle */
 /* eslint-disable no-undef */
+/* eslint-disable func-names */
 /* ************************************************************************************************
  *                                                                                                *
  * Please read the following tutorial before implementing tasks:                                   *
